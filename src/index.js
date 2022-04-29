@@ -3,69 +3,50 @@ const toyURL = "http://localhost:3000/toys"
 const toyCollection = document.querySelector("#toy-collection")
 console.log(toyCollection)
 
-document.addEventListener("DOMContentLoaded", () => {
-  const addBtn = document.querySelector("#new-toy-btn");
-  const toyFormContainer = document.querySelector(".container");
-  addBtn.addEventListener("click", () => {
-    // hide & seek with the form
-    addToy = !addToy;
-    if (addToy) {
-      toyFormContainer.style.display = "block";
-    } else {
-      toyFormContainer.style.display = "none";
-    }
-  });
-  renderData()
-  addToyToDB()
-});
-
-//working renderData that also creates a toy after fetch
-/*function renderData() {
-  fetch(toyURL).then(res => res.json()).then(data => {
-    console.log(data)
-    const toyData = data.forEach((toy) => {
-      const div = document.createElement('div')
-      div.className = 'card'
-      const h2 = document.createElement('h2')
-      h2.textContent = toy.name
-      const img = document.createElement('img')
-      img.src = `${toy.image}`
-      img.className = 'toy-avatar'
-      const p = document.createElement('p')
-      p.textContent = toy.likes
-      const btn = document.createElement('button')
-      btn.className = 'like-btn'
-      btn.addEventListener("click", (e)=> console.log(e))
-      div.append(h2, img, p, btn)
-      toyCollection.append(div)
-    })
-  })
-}*/
-
-//testing more dynamic renderData with separate createToy
+//dynamic renderData with separate createToy
 function renderData() {
   fetch(toyURL).then(res => res.json()).then(data => {
     data.forEach((toy)=>toyCollection.append(createToy(toy)))
   })
+  console.log('I have rendered')
 }
 
+//create toy from Fetch or through form
 function createToy(toy) {
+  console.log('I have created toys')
   const div = document.createElement('div')
   div.className = 'card'
+  div.id = toy.id
   const h2 = document.createElement('h2')
   h2.textContent = toy.name
   const img = document.createElement('img')
   img.src = `${toy.image}`
   img.className = 'toy-avatar'
-  const p = document.createElement('p')
+  let p = document.createElement('p')
   p.textContent = toy.likes
   const btn = document.createElement('button')
   btn.className = 'like-btn'
-  btn.addEventListener("click", (e)=> console.log(e))
+  btn.addEventListener("click", (e)=> {
+    console.log(e.path[1].id)
+    const toyId = e.path[1].id
+    fetch(`${toyURL}`+`/${toyId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({likes: toy.likes++})})
+    .then(res => res.json()).then(data => {
+      console.log(data)
+      //p.textContent = data.likes
+      })
+      p.textContent = toy.likes++
+    })
   div.append(h2, img, p, btn)
   return div
 }
 
+//posting data of form-added toy to DB and rendering in HTML upon successful response
 function addToyToDB() {
   const form = document.querySelector(".add-toy-form")
   console.log(form)
@@ -105,3 +86,19 @@ function addToyToDB() {
   })
 })
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const addBtn = document.querySelector("#new-toy-btn");
+  const toyFormContainer = document.querySelector(".container");
+  addBtn.addEventListener("click", () => {
+    // hide & seek with the form
+    addToy = !addToy;
+    if (addToy) {
+      toyFormContainer.style.display = "block";
+    } else {
+      toyFormContainer.style.display = "none";
+    }
+  });
+  renderData()
+  addToyToDB()
+});
