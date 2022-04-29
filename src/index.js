@@ -19,7 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
   addToyToDB()
 });
 
-function renderData() {
+//working renderData that also creates a toy after fetch
+/*function renderData() {
   fetch(toyURL).then(res => res.json()).then(data => {
     console.log(data)
     const toyData = data.forEach((toy) => {
@@ -39,6 +40,30 @@ function renderData() {
       toyCollection.append(div)
     })
   })
+}*/
+
+//testing more dynamic renderData with separate createToy
+function renderData() {
+  fetch(toyURL).then(res => res.json()).then(data => {
+    data.forEach((toy)=>toyCollection.append(createToy(toy)))
+  })
+}
+
+function createToy(toy) {
+  const div = document.createElement('div')
+  div.className = 'card'
+  const h2 = document.createElement('h2')
+  h2.textContent = toy.name
+  const img = document.createElement('img')
+  img.src = `${toy.image}`
+  img.className = 'toy-avatar'
+  const p = document.createElement('p')
+  p.textContent = toy.likes
+  const btn = document.createElement('button')
+  btn.className = 'like-btn'
+  btn.addEventListener("click", (e)=> console.log(e))
+  div.append(h2, img, p, btn)
+  return div
 }
 
 function addToyToDB() {
@@ -61,9 +86,9 @@ function addToyToDB() {
         "image": `${e.target[1].value}`,
         "likes": 0
       })
-    }).then(res => res.json()).then(postedData => {
-      console.log(postedData)
-      const div = document.createElement('div')
+    }).then(res => res.json()).then(toy => {
+      console.log(toy)
+      /*const div = document.createElement('div')
       div.className = 'card'
       const h2 = document.createElement('h2')
       h2.textContent = `${e.target[0].value}`
@@ -75,7 +100,8 @@ function addToyToDB() {
       const btn = document.createElement('button')
       btn.className = 'like-btn'
       div.append(h2, img, p, btn)
-      toyCollection.append(div)
+      toyCollection.append(div)*/
+      toyCollection.append(createToy(toy))
   })
 })
 }
